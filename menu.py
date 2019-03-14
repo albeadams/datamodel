@@ -19,10 +19,16 @@ class MainMenu(object):
 		return options
 
 	def get_table_columns(self, arg):
+		table = ''
 		with open(self.table_list, "r") as fp:
 			for line in iter(fp.readline, ''):
-				if line.split(',')[0] == arg[1]:
-					table = line.split(',')[1]
+				# refactor with contains...
+				if line[:2] == '++':
+					if line.split(',')[0][2:] == arg[1]:
+						table = line.split(',')[1]
+				if line[:1] == '+':
+					if line.split(',')[0][1:] == arg[1]:
+						table = line.split(',')[1]
 		if table:
 			self.oclient.get_table_columns(table)
 
@@ -30,8 +36,22 @@ class MainMenu(object):
 		#open file, print off first before comma
 		with open(self.table_list, "r") as fp:
 			for line in iter(fp.readline, ''):
-				print('    '+line.split(',')[0])
-				
+				if line[:2] == '++':
+					print('    '+line.split(',')[0][2:]+'   [fact]')
+				elif line[:1] == '+':
+					print('    '+line.split(',')[0][1:])
+
+	def get_modules(self, arg):
+		if arg[1] == 'sales':
+			mod = (input('enter ''"monthly"'', ''"daily"'', or ''"transaction"'': ')).lower()
+		mod = (arg[1]+'_'+mod)
+		with open(self.table_list, "r") as fp:
+			for line in iter(fp.readline, ''):
+				if line[:2] == '++' and line.split(',')[0][2:] == mod:
+					# here, found, but need to loop through following lines:
+					# maybe with a flag that goes until
+					# doesn't find a line with '-'
+					# and for each '-' its a join for this module
 
 	def query_columns(self):
 		return 'columns selected'
@@ -42,17 +62,16 @@ class MainMenu(object):
 	def query_relationships(self):
 		return 'relationships selected'
 
-	def query_module(self):
-		return 'module selected'
 
+ 
 	def route(self, args):
 		switch = {
 			'choices': self.view_table_choices,
+			'module': self.get_modules,
 			'table': self.get_table_columns,
 			'columns': self.query_columns,
 			'keys': self.query_keys,
 			'relationships': self.query_relationships,
-			'module': self.query_module
 		}
 
 		if args[0] in switch:

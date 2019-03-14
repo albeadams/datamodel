@@ -21,7 +21,7 @@ class OracleQuery(object):
 		for eachrow in cursor.description:
 			print('  ' + eachrow[0])
 		while True:
-			seecol = input('\nOptions:\n\tsample    >>> show sample\n\t<column> >>> show specific column\n\ttable    >>> show table again\n\tdetail    >>> show detailed table\n\tmenu     >>> return to main\n\nEnter: ')
+			seecol = input('\nOptions:\n\tsample    >>> show sample\n\t<column>  >>> show specific column\n\ttable     >>> show table again\n\tdetail    >>> show detailed table\n\tmenu      >>> return to main\n\nEnter: ')
 			seecol.lower()
 			if seecol == 'menu':
 				break
