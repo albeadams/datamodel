@@ -4,11 +4,14 @@ class MainMenu(object):
 
 	def __init__(self):
 		self.oclient = oracle.OracleQuery()
-		self.table_list = 'lookup/table_lookup.txt'
+		self.table_list = 'files/table_lookup.txt'
+		self.table_names = 'files/table_names.txt'
+		self.table_complete = 'files/table_complete.txt'
 		self.options = ('\nOptions: \n\n'
 			'   choices                >>>  shows table name choices\n'
 			'   <table_name>           >>>  lists columns for specific table\n'
 			'   table <table_name>     >>>  alternate way to list table columns\n'
+			'   print                  >>>  print table info to text doc\n'
 			'   all                    >>>  list all tables\n'
 			'   keys <table_name>      >>>  list keys for specific table\n'
 			'   relat <table_name>     >>>  lists all relationships for specific table\n'
@@ -83,6 +86,20 @@ class MainMenu(object):
 					flag = False
 		return True
 
+	def print_all(self, args):
+		#take list of tables from table_names, for each, print out columns and column info in table_complete
+		table_dict = {}
+		with open(self.table_names, "r") as fp:
+			for line in iter(fp.readline, ''):
+				table_dict = self.oclient.get_table_dict(line)
+				#have all columns and info on columns, append to table_completed
+				with open(self.table_complete, 'a+') as c:
+					c.write('%s\n' % line)
+					for key, value in table_dict.items():
+						c.write('%s:%s\n' % (key, value))
+					c.write('\n')
+		return True
+
 	def query_columns(self):
 		return 'columns selected'
 
@@ -91,6 +108,7 @@ class MainMenu(object):
 
 	def query_relationships(self):
 		return 'relationships selected'
+
 
 
  
@@ -103,6 +121,7 @@ class MainMenu(object):
 			'columns': self.query_columns,
 			'keys': self.query_keys,
 			'relationships': self.query_relationships,
+			'print': self.print_all,
 		}
 
 		if args[0] in switch:

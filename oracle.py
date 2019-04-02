@@ -1,10 +1,10 @@
 import cx_Oracle as oracle
-import dataconfig as datafig
+import dataconfig
 
 class OracleQuery(object):
 
 	def __init__(self):
-		self.connection = oracle.connect(datafig.data['username'], datafig.data['password'], datafig.data['client'])
+		self.connection = oracle.connect(dataconfig.data['username'], dataconfig.data['password'], dataconfig.data['client'])
 		self.options = ('\n\tOptions: \n\n'
 			'\t-------\n'
 			'\t   sample     >>>  show sample\n'
@@ -23,9 +23,33 @@ class OracleQuery(object):
 	def remove_cursor(self,cursor):
 		cursor.close()
 
+	#get data for excel
+	def get_excel_data(self, query):
+		cursor = self.get_cursor()
+		cursor.execute(query)
+		table_dict = {}
+		for eachrow in cursor.description:
+			table_dict.setdefault(eachrow[0],[])
+		return cursor, table_dict
+
+	def get_table_dict(self, table):
+		cursor = self.get_cursor()
+		table_dict = {}
+		try:
+			cursor.execute(dataconfig.query['get_table_columns'].format(table))
+			for eachrow in cursor.description:
+				table_dict.setdefault(eachrow[0],[])
+				table_dict[eachrow[0]].append(str(eachrow[1]).split('.')[1].split('\'')[0])
+				table_dict[eachrow[0]].append('Max:' + str(eachrow[3]))
+				table_dict[eachrow[0]].append(''.join(['Nullable' if str(eachrow[4]) == 'None' else 'Must contain value)']))
+		except Exception:
+			table_dict[table] = "not found"
+		self.remove_cursor(cursor)
+		return table_dict
+
 	def get_table_columns(self, table):
 		cursor = self.get_cursor()
-		cursor.execute(datafig.query['get_table_columns'].format(table))
+		cursor.execute(dataconfig.query['get_table_columns'].format(table))
 		for eachrow in cursor.description:
 			print('  ' + eachrow[0])
 		while True:
@@ -43,7 +67,7 @@ class OracleQuery(object):
 					print()
 			else:
 				sortcol = cursor.description[0][0]
-				#cursor.execute(datafig.query['get_table_sample'].format(table, sortcol, sortcol))
+				#cursor.execute(dataconfig.query['get_table_sample'].format(table, sortcol, sortcol))
 				if seecol == 'sample':
 					print(cursor.fetchone())
 					print()
