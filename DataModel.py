@@ -18,6 +18,16 @@ def RunQuery():
 	oclient.remove_cursor(cursor)
 	oclient.disconnect()
 
+def getCols():
+	wb = xw.Book.caller()
+	sht = wb.sheets['GetCols']
+	oclient = oc.OracleQuery()
+	i = 2
+	#while sht.cells(i, 1).value:
+	table_dict = oclient.get_table_dict(sht.cells(2,1).value)
+	#print dictionary (not dataframe), in to GetCols sheet
+	#after get this to work, need to iterate over all? would be better for larger operations
+
 def make_pdf():
 	wb = xw.Book.caller()
 	sht1 = wb.sheets['Query']
@@ -55,3 +65,4 @@ def make_pdf():
 	fig = plt.figure()
 	plt.scatter(x, y, s=area, c=colors, alpha=0.5)
 	sht2.pictures.add(fig, name='MyPlot', update=True)
+
