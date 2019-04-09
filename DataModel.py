@@ -5,6 +5,10 @@ import oracle as oc
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
+# DataModel is an interface to Excel of the same name.
+# Some of its functionality can be achieved using a command line,
+# interfacing through main.py, though this aspect has not been built out.
+
 def RunQuery():
 	wb = xw.Book.caller()
 	sht1 = wb.sheets['MakeQuery']
@@ -18,15 +22,21 @@ def RunQuery():
 	oclient.remove_cursor(cursor)
 	oclient.disconnect()
 
-def getCols():
+def GetCols():
 	wb = xw.Book.caller()
 	sht = wb.sheets['GetCols']
 	oclient = oc.OracleQuery()
-	i = 2
-	#while sht.cells(i, 1).value:
-	table_dict = oclient.get_table_dict(sht.cells(2,1).value)
-	#print dictionary (not dataframe), in to GetCols sheet
-	#after get this to work, need to iterate over all? would be better for larger operations
+	table = sht.range('B2').value
+	d = {}
+	d = oclient.get_table_dict(table)
+	if d:
+		df = pd.DataFrame.from_dict(d)
+		df_indexed = df.set_index(list(df)[0])
+		df = df.T
+		sht.range('I2').value = df		
+	else:
+		sht.range('I1').value = "Not Found"
+	oclient.disconnect()
 
 def make_pdf():
 	wb = xw.Book.caller()

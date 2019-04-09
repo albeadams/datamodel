@@ -40,10 +40,10 @@ class OracleQuery(object):
 			for eachrow in cursor.description:
 				table_dict.setdefault(eachrow[0],[])
 				table_dict[eachrow[0]].append(str(eachrow[1]).split('.')[1].split('\'')[0])
-				table_dict[eachrow[0]].append('Max:' + str(eachrow[3]))
-				table_dict[eachrow[0]].append(''.join(['Nullable' if str(eachrow[4]) == 'None' else 'Must contain value)']))
+				table_dict[eachrow[0]].append(str(eachrow[3]))
+				table_dict[eachrow[0]].append(''.join(['Yes' if str(eachrow[4]) == 'None' else 'No']))
 		except Exception:
-			table_dict[table] = "not found"
+			table_dict = {}  #[table] = "not found"
 		self.remove_cursor(cursor)
 		return table_dict
 
